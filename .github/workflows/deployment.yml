@@ -18,11 +18,22 @@ jobs:
             server-id: ossrh
             server-username: MAVEN_USERNAME
             server-password: MAVEN_PASSWORD
-        - name: deploy
+        - name: pre-deploy
           run: |
+            echo "pwd"
             pwd
+            echo "ls -l"
             ls -l
-            mvn deploy -DskipTests=true -Dmaven.javadoc.skip=true -B -V
+        - name: Run maven deploy/release (action-maven-publish)
+          uses: samuelmeuli/action-maven-publish@v1
+#          if: env.RELEASE_OK == 'yes'
+          with:
+            gpg_private_key: ${{ secrets.OSSRH_GPG_PRIVATE_KEY }}
+            gpg_passphrase: ${{ secrets.OSSRH_GPG_PRIVATE_PASSPHRASE }}
+            nexus_username: ${{ secrets.OSSRH_USERNAME }}
+            nexus_password: ${{ secrets.OSSRH_TOKEN }}
+            maven_profiles: "release"
+
 
         env:
           MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
