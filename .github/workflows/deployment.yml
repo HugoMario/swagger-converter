@@ -32,7 +32,6 @@ jobs:
             gpg_passphrase: ${{ secrets.OSSRH_GPG_PRIVATE_PASSPHRASE }}
             nexus_username: ${{ secrets.OSSRH_USERNAME }}
             nexus_password: ${{ secrets.OSSRH_TOKEN }}
-            maven_profiles: "release"
 
 
         env:
