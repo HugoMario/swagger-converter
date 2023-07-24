@@ -59,7 +59,7 @@ public class ConverterController {
     private MediaType getMediaType(RequestContext request) {
         MediaType outputType = MediaType.APPLICATION_JSON_TYPE;
 
-        boolean isJsonOK = false;
+         boolean isJsonOK = false;
         boolean isYamlOK = false;
 
         MediaType yamlMediaType = new MediaType("application", "yaml");

@@ -1,0 +1,28 @@
+on:
+  workflow_dispatch:
+    branches:
+      - master
+    inputs:
+      dependency:
+        description: 'Dependency to update'
+        required: true
+        default: 'swagger-parser'
+      version:
+        description: 'Version to update to'
+        required: true
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        java: [ 8 ]
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Java
+        uses: actions/setup-java@v1
+      - name: update-dependency
+        run: |
+          echo "updating ${{ inputs.dependency }} dependency to version ${{ inputs.version }}"
+          mvn -v
+          mvn package
+             
