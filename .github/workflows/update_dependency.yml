@@ -19,6 +19,8 @@ jobs:
         java: [ 8 ]
     steps:
       - uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.GH_TOKEN }}
       - name: Set up Java
         uses: actions/setup-java@v1
         with:
@@ -26,6 +28,23 @@ jobs:
       - name: update-dependency
         run: |
           echo "updating ${{ inputs.dependency }} dependency to version ${{ inputs.version }}"
-          mvn -v
-          mvn package
+          if [[ ${{ inputs.dependency }} == "swagger-inflector" ]]; then
+            mvn versions:set-property -DnewVersion=${{ inputs.version }} -Dproperty=swagger-inflector-version
+          else
+            mvn versions:set-property -DnewVersion=${{ inputs.version }} -Dproperty=swagger-parser-version
+          fi
+      - name: Commit & Push changes
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: 'pom.xml'
+          new_branch: update-${{ inputs.dependency }}-to-${{ inputs.version }}
+          message: updating ${{ inputs.dependency }} dependency to version ${{ inputs.version }}
+          committer_name: GitHub Actions
+          committer_email: actions@github.com
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Merge Pull Request
+        run: |
+          git checkout master
+          git merge update-${{ inputs.dependency }}-to-${{ inputs.version }}
+          git push
              
