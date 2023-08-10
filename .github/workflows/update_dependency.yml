@@ -76,6 +76,7 @@ jobs:
           git merge release-to-${{ env.RELEASE_VERSION }}
           git push
       - name: bump up to next snapshot
+        shell: bash
         run: |
           pwd
           sh CI/bump-version.sh
