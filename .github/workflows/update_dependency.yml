@@ -66,8 +66,8 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: updating ${{ inputs.dependency }} dependency to version ${{ inputs.version }}
-          title: 'release-to-${{ RELEASE_VERSION }}'
-          branch: release-to-${{ RELEASE_VERSION }}
+          title: 'release-to-${{ env.RELEASE_VERSION }}'
+          branch: release-to-${{ env.RELEASE_VERSION }}
           delete-branch: true
 
       - name: Merge release changes branch into master
@@ -90,7 +90,7 @@ jobs:
         uses: peter-evans/create-pull-request@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: "bump to next snapshot: ${{ CURRENT_VERSION }}"
-          title: 'release-to-${{ CURRENT_VERSION }}'
-          branch: release-to-${{ CURRENT_VERSION }}
+          commit-message: "bump to next snapshot: ${{ env.CURRENT_VERSION }}"
+          title: 'release-to-${{ env.CURRENT_VERSION }}'
+          branch: release-to-${{ env.CURRENT_VERSION }}
           delete-branch: true
