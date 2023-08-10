@@ -48,7 +48,7 @@ jobs:
           git merge update-${{ inputs.dependency }}-to-${{ inputs.version }}
           git push
       - name: Get Version
-        uses: ./
+        uses: entimaniac/read-pom-version-action@v1
         id: getVersion
       - name: release
         run: |
