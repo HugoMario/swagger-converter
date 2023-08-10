@@ -20,10 +20,10 @@
 
 CURRENT_VERSION="$(./CI/version.sh)"
 
-echo "old version is: " $CURRENT_VERSION
+echo "old version is: " ${CURRENT_VERSION}
 
 CURRENT_VERSION=${CURRENT_VERSION/-SNAPSHOT/}
-echo "old version AGAIN is: " $CURRENT_VERSION
+echo "old version AGAIN is: " ${CURRENT_VERSION} 
 
 #NEW_VERSION=${CURRENT_VERSION/-SNAPSHOT/}
 #
