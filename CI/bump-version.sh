@@ -17,7 +17,7 @@
 #      ;;
 #    esac
 #}
-
+pwd
 CURRENT_VERSION="$(./CI/version.sh)"
 
 echo "old version is: " ${CURRENT_VERSION}

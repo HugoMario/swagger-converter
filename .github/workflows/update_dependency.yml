@@ -77,8 +77,8 @@ jobs:
           git push
       - name: bump up to next snapshot
         run: |
-          sh ./CI/bump-version.sh
-          CURRENT_VERSION=./CI/version.sh
+          pwd
+          sh CI/bump-version.sh
           echo "CURRENT_VERSION=CURRENT_VERSION" >> $GITHUB_ENV
 #      - name: Commit & Push new release
 #        uses: EndBug/add-and-commit@v9
