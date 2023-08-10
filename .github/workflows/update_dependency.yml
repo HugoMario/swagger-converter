@@ -73,13 +73,13 @@ jobs:
       - name: Merge release changes branch into master
         run: |
           git checkout master
-          git merge release-to-${{ RELEASE_VERSION }}
+          git merge release-to-${{ env.RELEASE_VERSION }}
           git push
       - name: bump up to next snapshot
         run: |
           sh ./CI/bump-version.sh
           CURRENT_VERSION=./CI/version.sh
-          echo "RELEASE_VERSION=RELEASE_VERSION" >> $GITHUB_ENV
+          echo "CURRENT_VERSION=CURRENT_VERSION" >> $GITHUB_ENV
 #      - name: Commit & Push new release
 #        uses: EndBug/add-and-commit@v9
 #        with:
