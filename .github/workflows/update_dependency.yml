@@ -27,24 +27,67 @@ jobs:
           java-version: ${{ matrix.java }}
       - name: update-dependency
         run: |
-          echo "updating ${{ inputs.dependency }} dependency to version ${{ inputs.version }}"
-          if [[ ${{ inputs.dependency }} == "swagger-inflector" ]]; then
-            mvn versions:set-property -DnewVersion=${{ inputs.version }} -Dproperty=swagger-inflector-version
-          else
-            mvn versions:set-property -DnewVersion=${{ inputs.version }} -Dproperty=swagger-parser-version
-          fi
-      - name: Commit & Push changes
-        uses: EndBug/add-and-commit@v9
+          mvn versions:set-property -DnewVersion=${{ inputs.version }} -Dproperty=swagger-parser-version
+#      - name: Commit & Push changes
+      ##        uses: EndBug/add-and-commit@v9
+      ##        with:
+      ##          new_branch: update-${{ inputs.dependency }}-to-${{ inputs.version }}
+      ##          message: updating ${{ inputs.dependency }} dependency to version ${{ inputs.version }}
+      ##          github_token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Create PR for new dependency version
+        uses: peter-evans/create-pull-request@v4
         with:
-          add: 'pom.xml'
-          new_branch: update-${{ inputs.dependency }}-to-${{ inputs.version }}
-          message: updating ${{ inputs.dependency }} dependency to version ${{ inputs.version }}
-          committer_name: GitHub Actions
-          committer_email: actions@github.com
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Merge Pull Request
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: updating ${{ inputs.dependency }} dependency to version ${{ inputs.version }}
+          title: 'update-${{ inputs.dependency }}-to-${{ inputs.version }}'
+          branch: update-${{ inputs.dependency }}-to-${{ inputs.version }}
+          delete-branch: true
+      - name: Merge new branch into master
         run: |
           git checkout master
           git merge update-${{ inputs.dependency }}-to-${{ inputs.version }}
           git push
-             
+      - name: release
+        run: |
+          CURRENT_VERSION=./CI/version.sh
+          RELEASE_VERSION=${CURRENT_VERSION/-SNAPSHOT/}
+          mvn -q versions:set -DnewVersion="${RELEASE_VERSION}"
+#      - name: Commit & Push new release
+#        uses: EndBug/add-and-commit@v9
+#        with:
+#          new_branch: release-to-${{ RELEASE_VERSION }}
+#          message: release to version ${{ RELEASE_VERSION }}
+#          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create PR for new release
+        uses: peter-evans/create-pull-request@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: updating ${{ inputs.dependency }} dependency to version ${{ inputs.version }}
+          title: 'release-to-${{ RELEASE_VERSION }}'
+          branch: release-to-${{ RELEASE_VERSION }}
+          delete-branch: true
+
+      - name: Merge release changes branch into master
+        run: |
+          git checkout master
+          git merge release-to-${{ RELEASE_VERSION }}
+          git push
+      - name: bump up to next snapshot
+        run: |
+          sh ./CI/bump-version.sh
+          CURRENT_VERSION=./CI/version.sh
+#      - name: Commit & Push new release
+#        uses: EndBug/add-and-commit@v9
+#        with:
+#          new_branch: release-to-${{ RELEASE_VERSION }}
+#          message: release to version ${{ RELEASE_VERSION }}
+#          github_token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Create PR for next snapshot
+        uses: peter-evans/create-pull-request@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "bump to next snapshot: ${{ CURRENT_VERSION }}"
+          title: 'release-to-${{ CURRENT_VERSION }}'
+          branch: release-to-${{ CURRENT_VERSION }}
+          delete-branch: true
