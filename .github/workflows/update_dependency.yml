@@ -47,12 +47,9 @@ jobs:
           git checkout master
           git merge update-${{ inputs.dependency }}-to-${{ inputs.version }}
           git push
-      - name: Get Version
-        uses: entimaniac/read-pom-version-action@v1
-        id: getVersion
       - name: release
         run: |
-          CURRENT_VERSION=${{ steps.getVersion.outputs.version }}
+          CURRENT_VERSION=$(CI/version.sh)
           RELEASE_VERSION=${CURRENT_VERSION/-SNAPSHOT/}
           mvn -q versions:set -DnewVersion="${RELEASE_VERSION}"
           echo "CURRENT_VERSION=CURRENT_VERSION" >> $GITHUB_ENV
