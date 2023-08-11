@@ -75,6 +75,10 @@ jobs:
           git checkout master
           git merge release-to-${{ env.RELEASE_VERSION }}
           git push
+      - name: Set up Python 2.7
+        uses: MatteoH2O1999/setup-python@v1
+        with:
+          python-version: 2.7
       - name: bump up to next snapshot
         shell: bash
         run: |
