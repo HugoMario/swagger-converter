@@ -257,7 +257,7 @@
     -->
     <properties>
         <maven-plugin-version>1.0.0</maven-plugin-version>
-        <swagger-parser-version>2.1.17-SNAPSHOT</swagger-parser-version>
+        <swagger-parser-version>2.1.16</swagger-parser-version>
         <swagger-inflector-version>2.0.4</swagger-inflector-version>
         <jetty-version>9.4.9.v20180320</jetty-version>
         <logback-version>1.0.1</logback-version>
