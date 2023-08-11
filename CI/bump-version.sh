@@ -4,8 +4,13 @@ CURRENT_VERSION="$(./CI/version.sh)"
 
 echo "old version is: " ${CURRENT_VERSION}
 
-IFS='.'
-read -ra PARTS <<< "$CURRENT_VERSION"
+delimiter='.'
+s=$CURRENT_VERSION$delimiter
+PARTS=();
+while [[ $s ]]; do
+    PARTS+=("${s%%"$delimiter"*}");
+    s=${s#*"$delimiter"};
+done;
 
 BUMPED_VERSION=$((PARTS[2] + 1))
 NEW_VERSION="${PARTS[0]}.${PARTS[1]}.${BUMPED_VERSION}-SNAPSHOT"
