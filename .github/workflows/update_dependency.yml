@@ -1,13 +1,9 @@
-name: Dependency Update
+name: Update swagger-parser dependency
 on:
   workflow_dispatch:
     branches:
       - master
     inputs:
-      dependency:
-        description: 'Dependency to update'
-        required: true
-        default: 'swagger-parser'
       version:
         description: 'Version to update to'
         required: true
@@ -38,14 +34,14 @@ jobs:
         uses: peter-evans/create-pull-request@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: updating ${{ inputs.dependency }} dependency to version ${{ inputs.version }}
-          title: 'update-${{ inputs.dependency }}-to-${{ inputs.version }}'
-          branch: update-${{ inputs.dependency }}-to-${{ inputs.version }}
+          commit-message: updating swagger-parser dependency to version ${{ inputs.version }}
+          title: 'update-swagger-parser-to-${{ inputs.version }}'
+          branch: update-swagger-parser-to-${{ inputs.version }}
           delete-branch: true
       - name: Merge new branch into master
         run: |
           git checkout master
-          git merge update-${{ inputs.dependency }}-to-${{ inputs.version }}
+          git merge update-swagger-parser-to-${{ inputs.version }}
           git push
           
   release-new-version:
@@ -74,7 +70,7 @@ jobs:
         uses: peter-evans/create-pull-request@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: updating ${{ inputs.dependency }} dependency to version ${{ inputs.version }}
+          commit-message: updating swagger-parser dependency to version ${{ inputs.version }}
           title: 'release-to-${{ env.RELEASE_VERSION }}'
           branch: release-to-${{ env.RELEASE_VERSION }}
           delete-branch: true
