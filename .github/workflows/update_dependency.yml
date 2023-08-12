@@ -96,5 +96,5 @@ jobs:
         if: env.RELEASE_OK == 'yes'
         run: |
           git checkout master
-          git merge release-to-${{ env.BUMPED_VERSION }}
+          git merge next-version-to-${{ env.BUMPED_VERSION }}
           git push    
