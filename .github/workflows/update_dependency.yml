@@ -1,4 +1,4 @@
-name: Update swagger-parser dependency
+name: Swagger Parser Dependency Update
 on:
   workflow_dispatch:
     branches:
@@ -21,56 +21,45 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: ${{ matrix.java }}
+      - name: Set up Python 2.7
+        uses: MatteoH2O1999/setup-python@v1
+        with:
+          python-version: 2.7
       - name: update-dependency
         run: |
-          if [[ ${{ inputs.version }} =~ ^.*SNAPSHOT$ ]];
-          then
-            echo "RELEASE_OK=no" >> $GITHUB_ENV
-          else
-            echo "RELEASE_OK=yes" >> $GITHUB_ENV
-          fi
           mvn versions:set-property -DnewVersion=${{ inputs.version }} -Dproperty=swagger-parser-version
       - name: Create PR for new dependency version
         uses: peter-evans/create-pull-request@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: updating swagger-parser dependency to version ${{ inputs.version }}
-          title: 'update-swagger-parser-to-${{ inputs.version }}'
-          branch: update-swagger-parser-to-${{ inputs.version }}
+          commit-message: updating ${{ inputs.dependency }} dependency to version ${{ inputs.version }}
+          title: 'update-${{ inputs.dependency }}-to-${{ inputs.version }}'
+          branch: update-${{ inputs.dependency }}-to-${{ inputs.version }}
           delete-branch: true
       - name: Merge new branch into master
         run: |
           git checkout master
-          git merge update-swagger-parser-to-${{ inputs.version }}
+          git merge update-${{ inputs.dependency }}-to-${{ inputs.version }}
           git push
-          
-  release-new-version:
-    runs-on: ubuntu-latest
-    needs: update-swagger-parser-dependency
-    if: env.RELEASE_OK == 'yes'
-    strategy:
-      matrix:
-        java: [ 8 ]
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          token: ${{ secrets.GH_TOKEN }}
-      - name: Set up Java
-        uses: actions/setup-java@v1
-        with:
-          java-version: ${{ matrix.java }}
       - name: release
         run: |
-          CURRENT_VERSION=$(CI/version.sh)
-          RELEASE_VERSION=${CURRENT_VERSION/-SNAPSHOT/}
-          mvn -q versions:set -DnewVersion="${RELEASE_VERSION}"
-          echo "CURRENT_VERSION=$CURRENT_VERSION" >> $GITHUB_ENV
-          echo "RELEASE_VERSION=$RELEASE_VERSION" >> $GITHUB_ENV
+          if [[ ${{ inputs.version }} =~ ^.*SNAPSHOT$ ]];
+          then
+            echo "RELEASE_OK=no" >> $GITHUB_ENV
+          else
+            CURRENT_VERSION=$(CI/version.sh)
+            RELEASE_VERSION=${CURRENT_VERSION/-SNAPSHOT/}
+            mvn -q versions:set -DnewVersion="${RELEASE_VERSION}"
+            echo "CURRENT_VERSION=$CURRENT_VERSION" >> $GITHUB_ENV
+            echo "RELEASE_VERSION=$RELEASE_VERSION" >> $GITHUB_ENV
+            echo "RELEASE_OK=yes" >> $GITHUB_ENV
+          fi
       - name: Create PR for new release
         uses: peter-evans/create-pull-request@v4
+        if: env.RELEASE_OK == 'yes'
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: updating swagger-parser dependency to version ${{ inputs.version }}
+          commit-message: updating ${{ inputs.dependency }} dependency to version ${{ inputs.version }}
           title: 'release-to-${{ env.RELEASE_VERSION }}'
           branch: release-to-${{ env.RELEASE_VERSION }}
           delete-branch: true
@@ -81,25 +70,7 @@ jobs:
           git checkout master
           git merge release-to-${{ env.RELEASE_VERSION }}
           git push
-  bump-to-next-snapshot:
-    runs-on: ubuntu-latest
-    needs: release-new-version
-    if: env.RELEASE_OK == 'yes'
-    strategy:
-      matrix:
-        java: [ 8 ]
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          token: ${{ secrets.GH_TOKEN }}
-      - name: Set up Java
-        uses: actions/setup-java@v1
-        with:
-          java-version: ${{ matrix.java }}
-      - name: Set up Python 2.7
-        uses: MatteoH2O1999/setup-python@v1
-        with:
-          python-version: 2.7
+
       - name: bump up to next snapshot
         if: env.RELEASE_OK == 'yes'
         shell: bash
