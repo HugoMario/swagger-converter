@@ -1,15 +1,10 @@
-name: Swagger Parser Dependency Update
-on:
-  workflow_dispatch:
-    branches:
-      - master
-    inputs:
-      version:
-        description: 'Version to update to'
-        required: true
+name: Update from Dependabot
+on: pull_request
+
 jobs:
-  update-swagger-parser-dependency:
+  dependabot:
     runs-on: ubuntu-latest
+    if: ${{ github.actor == 'dependabot[bot]' }}
     strategy:
       matrix:
         java: [ 8 ]
@@ -25,25 +20,19 @@ jobs:
         uses: MatteoH2O1999/setup-python@v1
         with:
           python-version: 2.7
-      - name: update-dependency
-        run: |
-          mvn versions:set-property -DnewVersion=${{ inputs.version }} -Dproperty=swagger-parser-version
-      - name: Create PR for new dependency version
-        uses: peter-evans/create-pull-request@v4
+      - name: Fetch Dependabot metadata
+        id: dependabot-metadata
+        uses: dependabot/fetch-metadata@v1
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: updating swagger-parser dependency to version ${{ inputs.version }}
-          title: 'update-swagger-parser-to-${{ inputs.version }}'
-          branch: update-swagger-parser-to-${{ inputs.version }}
-          delete-branch: true
+          github-token: "${{ secrets.GITHUB_TOKEN }}"
       - name: Merge new branch into master
         run: |
           git checkout master
-          git merge update-swagger-parser-to-${{ inputs.version }}
+          git merge ${{ steps.dependabot-metadata.outputs.target-branch }}
           git push
       - name: release
         run: |
-          if [[ ${{ inputs.version }} =~ ^.*SNAPSHOT$ ]];
+          if [[ ${{ steps.dependabot-metadata.outputs.target-branch }} =~ ^.*SNAPSHOT$ ]];
           then
             echo "RELEASE_OK=no" >> $GITHUB_ENV
           else
@@ -63,14 +52,12 @@ jobs:
           title: 'release-to-${{ env.RELEASE_VERSION }}'
           branch: release-to-${{ env.RELEASE_VERSION }}
           delete-branch: true
-
       - name: Merge release changes branch into master
         if: env.RELEASE_OK == 'yes'
         run: |
           git checkout master
           git merge release-to-${{ env.RELEASE_VERSION }}
           git push
-
       - name: bump up to next snapshot
         if: env.RELEASE_OK == 'yes'
         shell: bash
@@ -93,4 +80,4 @@ jobs:
         run: |
           git checkout master
           git merge next-version-to-${{ env.BUMPED_VERSION }}
-          git push    
+          git push
